@@ -1,8 +1,17 @@
 
+import { db } from '../db';
+import { departmentsTable } from '../db/schema';
 import { type Department } from '../schema';
 
 export const getDepartments = async (): Promise<Department[]> => {
-  // This is a placeholder declaration! Real code should be implemented here.
-  // The goal of this handler is fetching all departments from the database.
-  return [];
+  try {
+    const result = await db.select()
+      .from(departmentsTable)
+      .execute();
+
+    return result;
+  } catch (error) {
+    console.error('Failed to fetch departments:', error);
+    throw error;
+  }
 };

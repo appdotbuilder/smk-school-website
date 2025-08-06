@@ -1,19 +1,58 @@
 
+import { db } from '../db';
+import { alumniTable } from '../db/schema';
 import { type UpdateAlumniInput, type Alumni } from '../schema';
+import { eq } from 'drizzle-orm';
 
 export const updateAlumni = async (input: UpdateAlumniInput): Promise<Alumni> => {
-  // This is a placeholder declaration! Real code should be implemented here.
-  // The goal of this handler is updating an existing alumni record in the database.
-  return {
-    id: input.id,
-    name: input.name || 'Placeholder Name',
-    graduation_year: input.graduation_year || 2020,
-    major: input.major || 'Placeholder Major',
-    current_position: input.current_position || null,
-    company: input.company || null,
-    contact_email: input.contact_email || null,
-    bio: input.bio || null,
-    created_at: new Date(),
-    updated_at: new Date()
-  } as Alumni;
+  try {
+    // Build update object with only provided fields
+    const updateData: Partial<typeof alumniTable.$inferInsert> = {
+      updated_at: new Date()
+    };
+
+    if (input.name !== undefined) {
+      updateData.name = input.name;
+    }
+
+    if (input.graduation_year !== undefined) {
+      updateData.graduation_year = input.graduation_year;
+    }
+
+    if (input.major !== undefined) {
+      updateData.major = input.major;
+    }
+
+    if (input.current_position !== undefined) {
+      updateData.current_position = input.current_position;
+    }
+
+    if (input.company !== undefined) {
+      updateData.company = input.company;
+    }
+
+    if (input.contact_email !== undefined) {
+      updateData.contact_email = input.contact_email;
+    }
+
+    if (input.bio !== undefined) {
+      updateData.bio = input.bio;
+    }
+
+    // Update alumni record
+    const result = await db.update(alumniTable)
+      .set(updateData)
+      .where(eq(alumniTable.id, input.id))
+      .returning()
+      .execute();
+
+    if (result.length === 0) {
+      throw new Error(`Alumni with id ${input.id} not found`);
+    }
+
+    return result[0];
+  } catch (error) {
+    console.error('Alumni update failed:', error);
+    throw error;
+  }
 };

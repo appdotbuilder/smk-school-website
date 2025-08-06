@@ -1,15 +1,23 @@
 
+import { db } from '../db';
+import { departmentsTable } from '../db/schema';
 import { type CreateDepartmentInput, type Department } from '../schema';
 
 export const createDepartment = async (input: CreateDepartmentInput): Promise<Department> => {
-  // This is a placeholder declaration! Real code should be implemented here.
-  // The goal of this handler is creating a new department and persisting it in the database.
-  return {
-    id: 0,
-    name: input.name,
-    description: input.description,
-    head_of_department: input.head_of_department,
-    created_at: new Date(),
-    updated_at: new Date()
-  } as Department;
+  try {
+    // Insert department record
+    const result = await db.insert(departmentsTable)
+      .values({
+        name: input.name,
+        description: input.description,
+        head_of_department: input.head_of_department
+      })
+      .returning()
+      .execute();
+
+    return result[0];
+  } catch (error) {
+    console.error('Department creation failed:', error);
+    throw error;
+  }
 };

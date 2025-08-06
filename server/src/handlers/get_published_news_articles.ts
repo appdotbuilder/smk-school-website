@@ -1,8 +1,19 @@
 
+import { db } from '../db';
+import { newsArticlesTable } from '../db/schema';
 import { type NewsArticle } from '../schema';
+import { eq } from 'drizzle-orm';
 
 export const getPublishedNewsArticles = async (): Promise<NewsArticle[]> => {
-  // This is a placeholder declaration! Real code should be implemented here.
-  // The goal of this handler is fetching only published news articles from the database.
-  return [];
+  try {
+    const results = await db.select()
+      .from(newsArticlesTable)
+      .where(eq(newsArticlesTable.is_published, true))
+      .execute();
+
+    return results;
+  } catch (error) {
+    console.error('Failed to fetch published news articles:', error);
+    throw error;
+  }
 };
